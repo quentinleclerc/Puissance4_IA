@@ -1,9 +1,14 @@
 open Gamebase
 open Game
+open Functory.Network
+open Functory.Network.Same
 
+
+let () = Functory.Control.set_debug true 
+
+(********************************************************)
 (* Interactively ask for the player's move. 
  * Returns Some move, or None when the move is invalid. *)
-
 
 let ask_move state =
   Printf.printf "  => Your move ? %!" ;  
@@ -57,4 +62,48 @@ let rec run with_ia state =
     run with_ia state'
 
 
+(* ANCIEN MAIN *)
 let () = run true initial
+
+(********************************************************)
+(* **************** Distributed part ****************** *)
+let hostname = Unix.gethostname ()
+
+(* The map function *)
+let themap n = Printf.sprintf "#%d (computed on %s)" n hostname
+
+(* The fold function *)
+let thefold acu zm = (Printf.sprintf "%s (concat on %s)" zm hostname ) ^ "\n" ^ acu
+
+let main () = 
+  Printf.printf "Main\n%!" ;
+
+  (* Declare machines as workers. 
+  * You have to launch the current program (in worker mode) on these machines by yourself. *)
+  declare_workers ~n:2 "localhost" ;
+  declare_workers ~n:2 "localhost" ;
+
+  
+  (* Distributed computation *)
+  let result = map_fold_ac ~f:themap ~fold:thefold "" bigloop in
+
+  Printf.printf "Computation done \n%!" result ;
+  ()
+
+(*** Entry point of the program. ***)
+let () =
+  
+  (* Sys.argv are the command-line arguments. *)
+  match Sys.argv with
+
+  (* If there is one argument equal to "master" *)
+  | [| _ ; "master" |] -> 
+     Printf.printf "I am the master.\n%!" ;
+     
+
+  (* Otherwise, we are a worker. *)
+  | _ -> 
+     Printf.printf "I am a worker.\n%!" ;
+     Functory.Network.Same.Worker.compute ()
+
+
