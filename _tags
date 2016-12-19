@@ -1,2 +1,4 @@
 true: debug
-true: package(unix, functory, graphics)
+true: unix
+true: functory
+true: package(graphics,camlimages,camlimages.graphics,camlimages.png,camlimages.gif)

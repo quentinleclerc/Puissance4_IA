@@ -1,9 +1,11 @@
+open Game 
 open Graphics
 open Printf
 open Graphic_image 
 open Images 
 open Png
-open Gif ;;
+open Gif 
+;;
 
 open_graph "" ;;
 resize_window 686 687 ;;
