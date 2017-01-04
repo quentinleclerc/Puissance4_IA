@@ -1,4 +1,5 @@
 open Game
+open Game_graphics
 
 let memory = Hashtbl.create 100000
 

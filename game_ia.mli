@@ -1,4 +1,5 @@
 open Game
+open Game_graphics
 
 (* Returns the best result the current player can reach. 
  * Returns None if the game is finished in the current state. *)
