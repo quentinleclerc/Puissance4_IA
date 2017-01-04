@@ -46,9 +46,11 @@ match result state with
 | Some r ->
   (* Game is finished. Print result. *)
   Printf.printf "*** %s ***\n%!" (result2s r) ;
-  moveto (size_x () / 2) (size_y () / 2) ;
+(*moveto (size_x () / 2) (size_y () / 2) ;
   set_text_size 100 ;
   draw_string (result2s r) ;
+*)
+  win2graph r ;
   wait_next_event [Button_down] ; 
   ()
   

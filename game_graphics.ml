@@ -24,6 +24,9 @@ let jeton_r = load_as_rgb24 "images/jeton_rouge.png" []
 let jeton_j = load_as_rgb24 "images/jeton_jaune.png" []
 let plat = load_as_rgb24 "images/grille.png" [] 
 let acc = load_as_rgb24 "images/acceuil_jeu.png" []
+let win_player = load_as_rgb24 "images/win_player.png" []
+let win_comput = load_as_rgb24 "images/win_comput.png" []
+let drawn = load_as_rgb24 "images/drawn_screen.png" []
 
 (* init the graphic windows and home screen *)
 let init_graph () = 
@@ -82,6 +85,11 @@ let state2graph state =
       | _ -> aux (acu + 1)  
   in aux (0)   
     
+let win2graph res = 
+  match res with 
+  | Win Comput -> draw_image win_comput 0 0 
+  | Win Human -> draw_image win_player 0 0
+  | Drawn -> draw_image drawn 0 0
 
 (* Read when you click with the mouse the column number *)
 let readmove () = 

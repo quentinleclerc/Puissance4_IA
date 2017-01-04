@@ -37,6 +37,7 @@ val result2s: result -> string
 
 (* to_graphic functions *)
 val state2graph: state -> unit 
+val win2graph: result -> unit 
 
 (* Reads a move from a string. 
  * Returns None if the string fails to be parsed. *)
