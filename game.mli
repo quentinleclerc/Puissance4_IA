@@ -68,6 +68,9 @@ type comparison = Equal | Greater | Smaller
  *                         returns Smaller if r1 is better than r2 (from the point of view of player). *)
 val compare: player -> result -> result -> comparison
 
+(* compare two tuples, used in functory mode *)
+val compare_func: 'a * result -> 'a * result -> 'a * result
+
 (* Returns the worst possible score for the given player. Useful for computing min or max.
  * The worst for H is supposed to be the best for C, and conversely. *)
 val worst_for: player -> result

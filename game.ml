@@ -9,12 +9,24 @@ type move = int (* Column number where the player want to put the token *)
 
 type result = Win of player | Drawn
 
-(* Create a 6x7 grid *) 
+(* Create a lignes x colonnes grid *) 
 let lignes = 4
-
 let colonnes = 4
-
 let plateau_init = Array.make_matrix lignes colonnes Vide ;;
+
+(* used to go through a matrix from (0,0) to (lines, columns)
+each cell is identified by a number 
+from 0 to (number of lines * number of columns) - 1
+as in this example : nb_lignes = 4, nb_columns = 4
+              12 13 14  15 
+              8  9  10  11 
+              4  5   6   7   
+              0  1   2   3  
+*)
+let num_to_coord num = 
+  let l = (num / colonnes) in
+  let c = num mod colonnes in 
+  (l, c)
 
 
 (* Printers *)
@@ -42,35 +54,34 @@ let initial = (plateau_init, Comput)
 let turn (_, p) = p
 
 let is_valid st mov = 
-  	match st with 
-    	| (plat, _) -> (mov >= 0)  && (mov < colonnes) && (plat.(lignes - 1).(mov) = Vide)
+	match st with 
+  	| (plat, _) -> (mov >= 0)  && (mov < colonnes) && (plat.(lignes - 1).(mov) = Vide)
 
+
+(* this function returns the highest token on the grid this
+allow the program to just ask for the column as a move   *)
 let find_height st mov = 
   let rec aux acu = 
     match st with
       | (plat, _) ->  
-          if plat.(acu).(mov) = Vide then acu 
-          else aux (acu + 1)
+        if plat.(acu).(mov) = Vide then acu 
+        else aux (acu + 1)
   in aux 0
 
 let play st mov =
-
   match st with 
-  | (plat, play) ->
-    let v = if play = Human then Rouge else Jaune in 
-    if (is_valid st mov)
-      then 
+    | (plat, play) ->
+      let v = if play = Human then Rouge else Jaune in 
+      if (is_valid st mov) then 
         let aux =
           let new_plat = clone_matrix plat in
-          assert (new_plat.(find_height st mov).(mov) = Vide);
-          (*Printf.printf "find_height st mov = %d\n%!" (find_height st mov) ;*)
           new_plat.(find_height st mov).(mov) <- v ;
           new_plat
         in 
-      (aux, next play)
-    else st
+        (aux, next play)
+      else st
 
-
+(* to construct all_moves later *)
 let rec make_int_list taille =
   if taille = 0 then [0] 
   else taille :: make_int_list (taille - 1)
@@ -109,18 +120,6 @@ else
   test_diago_sup_gauche || test_diago_sup_droite || test_ligne_droite || test_colonne_haut
 
 
-(* each cell is identified by a number from 0 to (number of lines * number of columns) - 1
-as in this example : nb_lignes = 3, nb_columns = 7
-14 15 16 17  18  19   20  | 21
-7  8  9  10  11  12   13 
-0  1   2   3   4   5   6   
-*)
-
-(* used to go through a matrix from (0,0) to (lines, columns) *)
-let num_to_coord num = 
-  let l = (num / colonnes)  in
-  let c = num mod colonnes in 
-  (l, c)
 
 (* check if the board si full, returns boolean *)
 let check_m_full (plat, play) =
@@ -129,23 +128,31 @@ let check_m_full (plat, play) =
 let result (plat, play) =  
     let rec aux acu =
       if acu = (lignes * colonnes) then 
-          if check_m_full (plat, play) then Some Drawn
-          else None 
+        if check_m_full (plat, play) then Some Drawn
+        else None 
       else 
-          if (test_alignement plat (num_to_coord acu)) then Some (Win (next play))
-          else aux (acu+1)  
+        if (test_alignement plat (num_to_coord acu)) then Some (Win (next play))
+        else aux (acu+1)  
     in aux 0
 
 (* This type was given in game.mli.
  * We have to repeat it here. *)
 type comparison = Equal | Greater | Smaller
 
-let compare pla r1 r2 = match pla, r1, r2 with
+let compare pla r1 r2 = 
+  match pla, r1, r2 with
     | (pla, Drawn, Win pl) -> if pla = pl then Greater else Smaller
     | (pla, Win pl, Drawn) -> if pla = pl then Smaller else Greater
     | (_, Drawn, Drawn) -> Equal
-  	| (pla, Win pl2, Win pl3) -> if pl2 == pl3 then Equal
-      								else if pla == pl3 then Greater
-      								else Smaller
+  	| (pla, Win pl2, Win pl3) -> 
+      if pl2 == pl3 then Equal
+  		else if pla == pl3 then Greater
+  		else Smaller
+
+(* Function used in functory mode, it's the "fold" *)
+let compare_func (mov1, res1) (mov2, res2) = 
+ if res1 = Win Comput then (mov1, Win Comput)
+ else if res2 = Win Comput then (mov2, Win Comput)
+ else (mov1, Win Human) 
         								
 let worst_for pl = Win (next pl)

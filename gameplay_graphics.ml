@@ -25,7 +25,7 @@ let ask_move state =
 
 (* Get the move from the IA. *)
 let ia_move state =
-  let (mov, _) = Game_ia.best_move state in
+  let (mov, _) = Game_ia_graphics.best_move state in
   match mov with
   | None -> assert false
   | Some m -> m
@@ -46,13 +46,9 @@ match result state with
 | Some r ->
   (* Game is finished. Print result. *)
   Printf.printf "*** %s ***\n%!" (result2s r) ;
-(*moveto (size_x () / 2) (size_y () / 2) ;
-  set_text_size 100 ;
-  draw_string (result2s r) ;
-*)
-  win2graph r ;
-  wait_next_event [Button_down] ; 
-  ()
+  winner2graph r ;
+  wait_next_event [Button_down] ;
+  () 
   
 | None ->
   (* Game is not finished. Play one turn. *)

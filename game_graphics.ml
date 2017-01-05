@@ -19,7 +19,7 @@ let colonnes = 4
 let plateau_init = Array.make_matrix lignes colonnes Vide ;;
 
 
-(* load the images used for graphics *)
+(* load the images used for graphic display *)
 let jeton_r = load_as_rgb24 "images/jeton_rouge.png" [] 
 let jeton_j = load_as_rgb24 "images/jeton_jaune.png" []
 let plat = load_as_rgb24 "images/grille.png" [] 
@@ -28,13 +28,13 @@ let win_player = load_as_rgb24 "images/win_player.png" []
 let win_comput = load_as_rgb24 "images/win_comput.png" []
 let drawn = load_as_rgb24 "images/drawn_screen.png" []
 
-(* init the graphic windows and home screen *)
+(* init the graphic window and home screen *)
 let init_graph () = 
   open_graph "" ;
   resize_window 727 632 ;
   set_window_title "Puissance 4" ;
   draw_image acc 0 0 ;
-  let e = wait_next_event [Button_down] in
+  (* let e =*) wait_next_event [Button_down] ;
   draw_image plat 0 0 
 
 
@@ -70,6 +70,7 @@ let result2s st =
   | Drawn -> "Tie game"
 
 
+(* graphic functions *)
 let state2graph state = 
   match state with 
   | (m, p) ->
@@ -85,11 +86,12 @@ let state2graph state =
       | _ -> aux (acu + 1)  
   in aux (0)   
     
-let win2graph res = 
+let winner2graph res = 
   match res with 
   | Win Comput -> draw_image win_comput 0 0 
   | Win Human -> draw_image win_player 0 0
   | Drawn -> draw_image drawn 0 0
+
 
 (* Read when you click with the mouse the column number *)
 let readmove () = 
@@ -97,7 +99,7 @@ let readmove () =
     Some (e.mouse_x / 105)
 
 
-(* Initial state, Human or Comput start *)
+(* Initial state, Human or Comput to start *)
 let initial = (plateau_init, Human) 
 
 let turn (_, p) = p
@@ -115,22 +117,19 @@ let find_height st mov =
   in aux 0
 
 let play st mov =
-
   match st with 
-  | (plat, play) ->
-    let v = if play = Human then Rouge else Jaune in
-    if (is_valid st mov)
-      then 
+    | (plat, play) ->
+      let v = if play = Human then Rouge else Jaune in
+      if (is_valid st mov) then 
         let aux =
           let new_plat = clone_matrix plat in
-          assert (new_plat.(find_height st mov).(mov) = Vide);
           new_plat.(find_height st mov).(mov) <- v ;
           new_plat
         in 
-      (aux, next play)
-    else st
+        (aux, next play)
+      else st
 
-
+(* to construct all_moves later *)
 let rec make_int_list taille =
   if taille = 0 then [0] 
   else taille :: make_int_list (taille - 1)
@@ -177,25 +176,25 @@ let check_m_full (plat, play) =
 let result (plat, play) =  
     let rec aux acu =
       if acu = (lignes * colonnes) then 
-          if check_m_full (plat, play) then Some Drawn
-          else None 
+        if check_m_full (plat, play) then Some Drawn
+        else None 
       else 
-          if (test_alignement plat (num_to_coord acu)) then Some (Win (next play))
-          else aux (acu+1)  
+        if (test_alignement plat (num_to_coord acu)) then Some (Win (next play))
+        else aux (acu+1)  
     in aux 0
 
 (* This type was given in game.mli.
  * We have to repeat it here. *)
 type comparison = Equal | Greater | Smaller
 
-let compare pla r1 r2 = match pla, r1, r2 with
+let compare pla r1 r2 = 
+  match pla, r1, r2 with
     | (pla, Drawn, Win pl) -> if pla = pl then Greater else Smaller
     | (pla, Win pl, Drawn) -> if pla = pl then Smaller else Greater
     | (_, Drawn, Drawn) -> Equal
-  	| (pla, Win pl2, Win pl3) -> if pl2 == pl3 then Equal
-      								else if pla == pl3 then Greater
-      								else Smaller
+  	| (pla, Win pl2, Win pl3) -> 
+      if pl2 == pl3 then Equal
+      else if pla == pl3 then Greater
+      else Smaller
         								
 let worst_for pl = Win (next pl)
-
-

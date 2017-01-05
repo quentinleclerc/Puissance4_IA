@@ -36,8 +36,11 @@ val move2s:     move -> string
 val result2s: result -> string
 
 (* to_graphic functions *)
-val state2graph: state -> unit 
-val win2graph: result -> unit 
+
+val state2graph: state -> unit
+
+(* print a screen with the winner *)
+val winner2graph: result -> unit 
 
 (* Reads a move from a string. 
  * Returns None if the string fails to be parsed. *)
